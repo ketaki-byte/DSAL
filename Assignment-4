@@ -1,336 +1,283 @@
-#include <iostream>
-#include <stack>
-#include <string.h>
+ #include<iostream>
+#include<stack>
 using namespace std;
 
-struct node
-{
-    char data;
-    node *leftchild;
-    node *rightchild;
-} * root;
+struct Node{
+int data;
+Node * left;
+Node  * right;
+Node(int value){
+data = value;
+left = 0;
+right = 0;
 
-node *store_root_address;
-
-node *construct_prefix_tree(char prefix[]);
-node *construct_postfix_tree(char posfix[]);
-void recursive_nonrecursive_choice();
-void expression_choice();
-
-void recursive_inorder(node *root);
-void recursive_preorder(node *root);
-void recursive_postorder(node *root);
-
-void nonrecursive_inorder(node *root);
-void nonrecursive_preorder(node *root);
-void nonrecursive_postorder(node *root);
-
-bool isOperator(char c)
-{
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^')
-    {
-        return true;
-    }
-    return false;
+}
+};
+bool isOperator(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/';
 }
 
-node *newNode(char v)
-{
-    node *temp = new node;
-    temp->leftchild = NULL;
-    temp->rightchild = NULL;
-    temp->data = v;
-    return temp;
-}
 
-node *construct_postfix_tree(char postfix[])
+Node* constructPostfixTree(const string& postfix)
 {
-    stack<node *> s;
-    node *root, *t1, *t2;
-
-    for (int i = 0; i < strlen(postfix); i++)
-    {
-        if (!isOperator(postfix[i]))
-        {
-            root = newNode(postfix[i]);
-            s.push(root);
-        }
-        else
-        {
-            root = newNode(postfix[i]);
-            t1 = s.top();
-            s.pop();
-            t2 = s.top();
-            s.pop();
-            root->rightchild = t1;
-            root->leftchild = t2;
-            s.push(root);
+    stack<Node*> s;
+    for (int i = 0; i<1; i++)
+{
+char c =postfix[i];
+        if (isOperator(c)) {
+            Node* node = new Node(c);
+            node->right = s.top(); s.pop();
+            node->left = s.top(); s.pop();
+            s.push(node);
+        } else {
+            s.push(new Node(c));
         }
     }
-
-    root = s.top();
-    s.pop();
-
-    return root;
+    return s.top();
 }
 
-node *construct_prefix_tree(char prefix[])
-{
-    stack<node *> s;
-    node *root, *t1, *t2;
-
-    for (int i = 0; i < strlen(prefix); i++)
-    {
-        if (!isOperator(prefix[i]))
-        {
-            root = newNode(prefix[i]);
-            s.push(root);
-        }
-        else
-        {
-            root = newNode(prefix[i]);
-            t1 = s.top();
-            s.pop();
-            t2 = s.top();
-            s.pop();
-            root->leftchild = t1;
-            root->rightchild = t2;
-            s.push(root);
+// Construct an expression tree from a prefix expression
+Node* constructPrefixTree(const string& prefix) {
+    stack<Node*> s;
+    for (int i = prefix.size() - 1; i >= 0; --i) {
+        char c = prefix[i];
+        if (isOperator(c)) {
+            Node* node = new Node(c);
+            node->left = s.top(); s.pop();
+            node->right = s.top(); s.pop();
+            s.push(node);
+        } else {
+            s.push(new Node(c));
         }
     }
-
-    root = s.top();
-    s.pop();
-
-    return root;
+    return s.top();
 }
 
-void recursive_inorder(node *root)
+Node * insertNode(Node * root,int value){
+if(root==0)
 {
-    node *temp;
-    temp = root;
-    if (temp != NULL)
-    {
-        recursive_inorder(temp->leftchild);
-        cout << " " << temp->data;
-        recursive_inorder(temp->rightchild);
-    }
+return new Node(value);
+}
+if(value<root->data){
+root->left=
+insertNode(root->left,value);
+}
+else{
+root->right=
+insertNode(root->right,value);
 }
 
-void recursive_preorder(node *root)
+return root;
+}
+void inOrderRecursive(Node*root)
 {
-    node *temp;
-    temp = root;
-    if (temp != NULL)
-    {
-        cout << " " << temp->data;
-        recursive_preorder(temp->leftchild);
-        recursive_preorder(temp->rightchild);
-    }
+if(root==0)
+{
+return ;
+}
+cout<<root->data<<" ";
+inOrderRecursive(root->left);
+inOrderRecursive(root->right);
+
 }
 
-void recursive_postorder(node *root)
-{
-    node *temp;
-    temp = root;
-    if (temp != NULL)
-    {
-        recursive_postorder(temp->leftchild);
-        recursive_postorder(temp->rightchild);
-        cout << " " << temp->data;
-    }
-}
 
-void nonrecursive_inorder(node *root)
+void inOrderNonrecursive(Node * root)
 {
-    stack<node *> s;
-    node *current_node = root;
+    Node* tmp = root;
+    stack<Node*> S;
 
-    while (current_node != NULL || s.empty() == false)
-    {
-        while (current_node != NULL)
-        {
-            s.push(current_node);
-            current_node = current_node->leftchild;
+    while (true) {
+       
+        while (tmp != 0)
+{
+            S.push(tmp);
+            tmp = tmp->left;
+        }
+       
+       
+        if (S.empty())
+{
+            return;
         }
 
-        current_node = s.top();
-        s.pop();
-        cout << current_node->data;
-
-        current_node = current_node->rightchild;
+        tmp = S.top();
+        S.pop();
+        cout << tmp->data << " ";
+        tmp = tmp->right;
     }
 }
 
-void nonrecursive_preorder(node *root)
+
+void preOrderRecursive(Node * root)
 {
-    stack<node *> s;
-    s.push(root);
-    if (root == NULL)
-    {
-        return;
-    }
+if(root==0)
+{
+return ;
+}
+cout<<root->data<<" ";
+preOrderRecursive(root->left);
+preOrderRecursive(root->right);
 
-    while (s.empty() == false)
-    {
-        node *temp = s.top();
-        s.pop();
-        cout << " " << temp->data;
 
-        if (temp->rightchild)
-        {
-            s.push(temp->rightchild);
+}
+void preOrderNonrecursive(Node * root)
+{
+Node* tmp = root;
+    stack<Node*> S;
+
+    while (true) {
+       
+        while (tmp != 0)
+{
+            S.push(tmp);
+            cout<< tmp->data<<" ";
+            tmp = tmp->left;
+      }
+       
+       
+        if (S.empty())
+{
+            return;
         }
+        tmp = S.top();
+        S.pop();
+          tmp = tmp->right;
+}
+}
+void postOrderRecursive(Node * root)
+{
+if(root==0)
+{
+return ;
 
-        if (temp->leftchild)
-        {
-            s.push(temp->leftchild);
-        }
-    }
+}
+postOrderRecursive(root->left);
+postOrderRecursive(root->right);
+cout<<root->data<<" ";
+
+}
+ 
+void postOrderNonrecursive(Node* root) {
+    if (root == 0)
+{
+return;
 }
 
-void nonrecursive_postorder(node *root)
-{
-    if (root == NULL)
-    {
-        return;
-    }
+    stack<Node*> S;
+    Node* prev = 0 ;
 
-    stack<node *> s1;
-    stack<node *> s2;
-    s1.push(root);
-    node *temp;
-
-    while (s1.empty() == false)
-    {
-        temp = s1.top();
-        s1.pop();
-        s2.push(temp);
-
-        if (temp->leftchild)
-        {
-            s1.push(temp->leftchild);
-        }
-
-        if (temp->rightchild)
-        {
-            s1.push(temp->rightchild);
-        }
-    }
-
-    while (!s2.empty())
-    {
-        temp = s2.top();
-        s2.pop();
-        cout << " " << temp->data;
-    }
-}
-
-int main()
-{
-    int k = 0;
-    int ch, choice;
-    node *root_address;
-    char reverse[100], prefix[100], postfix[100];
-
-    do
-    {
-        cout << "\n";
-        cout << "\n From which expression you want to construct binary expression tree?\n";
-        cout << "\n 1) Prefix Expression. \n 2) Postfix Expression. \n 3) Exit.";
-        cout << "\n Enter Your Choice: ";
-        cin >> ch;
-
-        switch (ch)
-        {
-        case 1:
-            cout << "\nEnter Prefix Expression: ";
-            cin >> prefix;
-
-            for (int j = strlen(prefix) - 1; j >= 0; j--)
-                reverse[k++] = prefix[j];
-            reverse[k] = '\0';
-            root_address = construct_prefix_tree(reverse);
-
-            cout << "\nIn which manner you want to traverse the binary expression tree?" << endl;
-            cout << "1) Recursively. \n2) Non-Recursively. \n3) Exit." << endl;
-            cout << "Enter Your Choice:  ";
-            cin >> ch;
-            switch (ch)
-            {
-            case 1:
-                cout << "\nRecursive preorder is: ";
-                recursive_preorder(root_address);
-
-                cout << "\nRecursive inorder is: ";
-                recursive_inorder(root_address);
-
-                cout << "\nRecursive postorder is: ";
-                recursive_postorder(root_address);
-
-                break;
-
-            case 2:
-                cout << "\n\nNon-Recursive preorder is: ";
-                nonrecursive_preorder(root_address);
-
-                cout << "\nNon-Recursive inorder is: ";
-                nonrecursive_inorder(root_address);
-
-                cout << "\nNon-Recursive postorder is: ";
-                nonrecursive_postorder(root_address);
-                break;
-
-            case 3:
-                cout << "You Have Successfully Exitted.....";
-                break;
-
-            default:
-                cout << "INVALID CHOICE.....";
+    S.push(root);
+    while (!S.empty()) {
+        Node* tmp = S.top();
+       
+        if (!prev || prev->left == tmp|| prev->right == tmp) {
+            if (tmp->left) {
+                S.push(tmp->left);
+            } else if (tmp->right) {
+                S.push(tmp->right);
             }
-            break;
+        }
+       
+        else if (tmp->left == prev) {
+            if (tmp->right) {
+                S.push(tmp->right);
+            }
+        }
+       
+        else {
+            cout << tmp->data << " ";
+            S.pop();
+        }
+        prev = tmp;
+    }
+}
 
-        case 2:
-            cout << "\nEnter Postfix Expression: ";
-            cin >> postfix;
-            root_address = construct_postfix_tree(postfix);
-            cout << "\nIn which manner you want to traverse the binary expression tree?" << endl;
-            cout << "1) Recursively. \n2) Non-Recursively. \n3) Exit.";
-            cout << "\nEnter Your Choice:  ";
+int main(){
+string expression;
+    int choice;
+    char op;
+
+    do {
+        cout << "1. Construct Tree from Postfix Expression" << endl;
+        cout << "2. Construct Tree from Prefix Expression" << endl;
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        Node* root = 0;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter Postfix Expression: ";
+                cin >> expression;
+                root = constructPostfixTree(expression);
+                break;
+            case 2:
+                cout << "Enter Prefix Expression: ";
+                cin >> expression;
+                root = constructPrefixTree(expression);
+                break;
+            default:
+                cout << "Invalid choice" << endl;
+                continue;
+        }
+        do {
+            cout << endl;
+            cout << "1. Inorder Recursive" << endl;
+            cout << "2. Inorder Nonrecursive" << endl;
+            cout << "3. Preorder Recursive" << endl;
+            cout << "4. Preorder Nonrecursive" << endl;
+            cout << "5. Postorder Recursive" << endl;
+            cout << "6. Postorder Nonrecursive" << endl;
+            cout << "Enter choice: ";
             cin >> choice;
-            switch (choice)
-            {
-            case 1:
-                cout << "\nRecursive preorder is: ";
-                recursive_preorder(root_address);
 
-                cout << "\nRecursive inorder is: ";
-                recursive_inorder(root_address);
-
-                cout << "\nRecursive postorder is: ";
-                recursive_postorder(root_address);
-
-                break;
-
-            case 2:
-                cout << "\n\nNon-Recursive preorder is: ";
-                nonrecursive_preorder(root_address);
-
-                cout << "\nNon-Recursive inorder is: ";
-                nonrecursive_inorder(root_address);
-
-                cout << "\nNon-Recursive postorder is: ";
-                nonrecursive_postorder(root_address);
-                break;
-
-            case 3:
-                cout << "Exitting";
-                break;
-
-            default:
-                cout << "INVALID CHOICE";
+            switch (choice) {
+                case 1:
+                    cout << "Inorder Recursive: ";
+                    inOrderRecursive(root);
+                    cout << endl;
+                    break;
+                case 2:
+                    cout << "Inorder Nonrecursive: ";
+                    inOrderNonrecursive(root);
+                    cout << endl;
+                    break;
+                case 3:
+                    cout << "Preorder Recursive: ";
+                    preOrderRecursive(root);
+                    cout << endl;
+                    break;
+                case 4:
+                    cout << "Preorder Nonrecursive: ";
+                    preOrderNonrecursive(root);
+                    cout << endl;
+                    break;
+                case 5:
+                    cout << "Postorder Recursive: ";
+                    postOrderRecursive(root);
+                    cout << endl;
+                    break;
+                case 6:
+                    cout << "Postorder Nonrecursive: ";
+                    postOrderNonrecursive(root);
+                    cout << endl;
+                    break;
+                default:
+                    cout << "Invalid choice" << endl;
+                    break;
             }
-        }
-    } while (choice != 3);
+
+            cout << "Do you want to continue with traversals (y/n)? ";
+            cin >> op;
+        } while (op == 'y' || op == 'Y');
+
+        cout << "Do you want to construct another tree (y/n)? ";
+        cin >> op;
+
+    } while (op == 'y' || op == 'Y');
+
     return 0;
-}
+} 
+
+ 
